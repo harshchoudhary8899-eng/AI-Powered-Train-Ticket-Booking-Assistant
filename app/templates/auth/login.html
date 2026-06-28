@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <div class="surface auth-panel">
+        <h1>Login</h1>
+        <form method="post" class="stack-form">
+            <div>
+                <label class="form-label" for="email">Email</label>
+                <input class="form-control" id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div>
+                <label class="form-label" for="password">Password</label>
+                <input class="form-control" id="password" name="password" type="password" autocomplete="current-password" required>
+            </div>
+            <label class="form-check">
+                <input class="form-check-input" type="checkbox" name="remember">
+                <span class="form-check-label">Remember me</span>
+            </label>
+            <button class="btn btn-primary w-100" type="submit">Login</button>
+        </form>
+        <p class="small text-secondary mt-3 mb-0">Demo: demo@example.com / demo123</p>
+    </div>
+</section>
+{% endblock %}
+

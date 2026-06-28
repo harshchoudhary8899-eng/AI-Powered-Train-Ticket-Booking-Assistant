@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}PNR Status{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Status</p>
+            <h1>PNR Lookup</h1>
+        </div>
+    </div>
+
+    <section class="surface mt-4">
+        <form class="row g-3 align-items-end" method="post">
+            <div class="col-md-8 col-lg-5">
+                <label class="form-label" for="pnr">PNR</label>
+                <input class="form-control" id="pnr" name="pnr" value="{{ pnr }}" maxlength="16" required>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <button class="btn btn-primary w-100" type="submit">Check</button>
+            </div>
+        </form>
+    </section>
+
+    {% if booking %}
+        <section class="surface mt-4">
+            <div class="section-title">
+                <h2>{{ booking.train.number }} - {{ booking.train.name }}</h2>
+                <span class="status status-{{ booking.status|lower }}">{{ booking.status }}</span>
+            </div>
+            <dl class="summary-list">
+                <div><dt>Route</dt><dd>{{ booking.train.source_station.code }} to {{ booking.train.destination_station.code }}</dd></div>
+                <div><dt>Date</dt><dd>{{ booking.travel_date.strftime("%d %b %Y") }}</dd></div>
+                <div><dt>Passengers</dt><dd>{{ booking.passenger_count }}</dd></div>
+                <div><dt>Fare</dt><dd>{{ booking.total_fare|currency }}</dd></div>
+            </dl>
+        </section>
+    {% endif %}
+</section>
+{% endblock %}
+

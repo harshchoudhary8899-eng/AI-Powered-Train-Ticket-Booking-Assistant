@@ -1,0 +1,12 @@
+{
+  "name": "ai-powered-train-ticket-booking-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Flask-based AI-powered train ticket booking assistant.",
+  "scripts": {
+    "dev": ".venv\\Scripts\\python -m flask --app run.py run --debug --host 127.0.0.1 --port 5000",
+    "start": ".venv\\Scripts\\python run.py",
+    "init-db": ".venv\\Scripts\\python -m flask --app run.py init-db",
+    "check": ".venv\\Scripts\\python -m compileall app run.py"
+  }
+}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Manage Trains{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Admin</p>
+            <h1>Trains</h1>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
+    </div>
+
+    <section class="surface mt-4">
+        <h2>Add Train</h2>
+        <form method="post" class="row g-3">
+            <div class="col-sm-4 col-xl-2">
+                <label class="form-label" for="number">Number</label>
+                <input class="form-control" id="number" name="number" required>
+            </div>
+            <div class="col-sm-8 col-xl-4">
+                <label class="form-label" for="name">Name</label>
+                <input class="form-control" id="name" name="name" required>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <label class="form-label" for="source_station_id">Source</label>
+                <select class="form-select" id="source_station_id" name="source_station_id" required>
+                    {% for station in stations %}
+                        <option value="{{ station.id }}">{{ station.city }} - {{ station.code }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <label class="form-label" for="destination_station_id">Destination</label>
+                <select class="form-select" id="destination_station_id" name="destination_station_id" required>
+                    {% for station in stations %}
+                        <option value="{{ station.id }}">{{ station.city }} - {{ station.code }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label class="form-label" for="departure_time">Depart</label>
+                <input class="form-control" id="departure_time" name="departure_time" type="time" required>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label class="form-label" for="arrival_time">Arrive</label>
+                <input class="form-control" id="arrival_time" name="arrival_time" type="time" required>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label class="form-label" for="duration_minutes">Minutes</label>
+                <input class="form-control" id="duration_minutes" name="duration_minutes" type="number" min="1" required>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label class="form-label" for="fare">Fare</label>
+                <input class="form-control" id="fare" name="fare" type="number" min="0" step="0.01" required>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label class="form-label" for="seats_total">Total Seats</label>
+                <input class="form-control" id="seats_total" name="seats_total" type="number" min="1" required>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label class="form-label" for="seats_available">Available</label>
+                <input class="form-control" id="seats_available" name="seats_available" type="number" min="0" required>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <label class="form-label" for="runs_on">Runs On</label>
+                <input class="form-control" id="runs_on" name="runs_on" value="Daily" required>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <label class="form-label" for="status">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option>ACTIVE</option>
+                    <option>PAUSED</option>
+                </select>
+            </div>
+            <div class="col-md-4 col-xl-2 d-flex align-items-end">
+                <button class="btn btn-primary w-100" type="submit">Add Train</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="surface mt-4">
+        <h2>Inventory</h2>
+        <div class="table-responsive">
+            <table class="table align-middle admin-table">
+                <thead>
+                    <tr>
+                        <th>Train</th>
+                        <th>Route</th>
+                        <th>Time</th>
+                        <th>Fare</th>
+                        <th>Total</th>
+                        <th>Available</th>
+                        <th>Runs</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for train in trains %}
+                        <tr>
+                            <td><strong>{{ train.number }}</strong><br><small>{{ train.name }}</small></td>
+                            <td>{{ train.source_station.code }} to {{ train.destination_station.code }}</td>
+                            <td>{{ train.departure_time.strftime("%H:%M") }} to {{ train.arrival_time.strftime("%H:%M") }}</td>
+                            <td><input class="form-control form-control-sm" form="update-train-{{ train.id }}" name="fare" type="number" step="0.01" value="{{ '%.2f'|format(train.fare) }}"></td>
+                            <td><input class="form-control form-control-sm" form="update-train-{{ train.id }}" name="seats_total" type="number" min="1" value="{{ train.seats_total }}"></td>
+                            <td><input class="form-control form-control-sm" form="update-train-{{ train.id }}" name="seats_available" type="number" min="0" value="{{ train.seats_available }}"></td>
+                            <td><input class="form-control form-control-sm" form="update-train-{{ train.id }}" name="runs_on" value="{{ train.runs_on }}"></td>
+                            <td>
+                                <select class="form-select form-select-sm" form="update-train-{{ train.id }}" name="status">
+                                    <option {% if train.status == "ACTIVE" %}selected{% endif %}>ACTIVE</option>
+                                    <option {% if train.status == "PAUSED" %}selected{% endif %}>PAUSED</option>
+                                </select>
+                            </td>
+                            <td><button class="btn btn-sm btn-outline-primary" form="update-train-{{ train.id }}" type="submit">Save</button></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% for train in trains %}
+                <form id="update-train-{{ train.id }}" method="post" action="{{ url_for('main.admin_update_train', train_id=train.id) }}"></form>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+{% endblock %}
