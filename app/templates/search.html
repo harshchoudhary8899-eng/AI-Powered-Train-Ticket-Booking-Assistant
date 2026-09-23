@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Search Trains{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Search</p>
+            <h1>Available Trains</h1>
+        </div>
+    </div>
+
+    <section class="surface mt-4">
+        <form class="row g-3 align-items-end" method="post">
+            <div class="col-md-6 col-xl-3">
+                <label class="form-label" for="source_id">Source</label>
+                <select class="form-select" id="source_id" name="source_id" required>
+                    <option value="">Select source</option>
+                    {% for station in stations %}
+                        <option value="{{ station.id }}" {% if station.id == source_id %}selected{% endif %}>{{ station.city }} - {{ station.code }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <label class="form-label" for="destination_id">Destination</label>
+                <select class="form-select" id="destination_id" name="destination_id" required>
+                    <option value="">Select destination</option>
+                    {% for station in stations %}
+                        <option value="{{ station.id }}" {% if station.id == destination_id %}selected{% endif %}>{{ station.city }} - {{ station.code }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <label class="form-label" for="travel_date">Date</label>
+                <input class="form-control" id="travel_date" name="travel_date" type="date" min="{{ today_iso }}" value="{{ selected_date }}" required>
+            </div>
+            <div class="col-sm-6 col-xl-1">
+                <label class="form-label" for="passengers">Passengers</label>
+                <input class="form-control" id="passengers" name="passengers" type="number" min="1" max="6" value="{{ passenger_count }}" required>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <label class="form-label" for="preference">Preference</label>
+                <select class="form-select" id="preference" name="preference">
+                    <option value="balanced" {% if preference == "balanced" %}selected{% endif %}>Balanced</option>
+                    <option value="fastest" {% if preference == "fastest" %}selected{% endif %}>Fastest</option>
+                    <option value="cheapest" {% if preference == "cheapest" %}selected{% endif %}>Cheapest</option>
+                    <option value="availability" {% if preference == "availability" %}selected{% endif %}>Availability</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-xl-1">
+                <button class="btn btn-primary w-100" type="submit">Search</button>
+            </div>
+        </form>
+    </section>
+
+    {% if results %}
+        <section class="results-grid mt-4">
+            {% for item in results %}
+                {% set train = item.train %}
+                <article class="result-card {% if item.is_recommended %}recommended{% endif %}">
+                    <div class="result-main">
+                        <div>
+                            <div class="train-line">
+                                <span>{{ train.number }}</span>
+                                <strong>{{ train.name }}</strong>
+                                {% if item.is_recommended %}<span class="badge text-bg-success">AI pick</span>{% endif %}
+                            </div>
+                            <p class="route-line">{{ train.source_station.label() }} to {{ train.destination_station.label() }}</p>
+                        </div>
+                        <div class="score-block">
+                            <span>{{ item.score }}</span>
+                            <small>AI score</small>
+                        </div>
+                    </div>
+                    <div class="result-metrics">
+                        <span><strong>{{ train.departure_time.strftime("%H:%M") }}</strong><small>Depart</small></span>
+                        <span><strong>{{ train.arrival_time.strftime("%H:%M") }}</strong><small>Arrive</small></span>
+                        <span><strong>{{ train.duration_label }}</strong><small>Duration</small></span>
+                        <span><strong>{{ train.fare|currency }}</strong><small>Base fare</small></span>
+                        <span><strong>{{ train.seats_available }}</strong><small>Seats</small></span>
+                        <span><strong>{{ item.trend.label }}</strong><small>Trend</small></span>
+                    </div>
+                    <div class="result-footer">
+                        <p>{{ item.reasons|join(", ")|capitalize }}.</p>
+                        {% if train.seats_available >= passenger_count %}
+                            <a class="btn btn-primary" href="{{ url_for('main.book_train', train_id=train.id, travel_date=selected_date, passengers=passenger_count, recommendation_reason=item.reasons|join(', ')) }}">Book</a>
+                        {% else %}
+                            <button class="btn btn-outline-secondary" type="button" disabled>Unavailable</button>
+                        {% endif %}
+                    </div>
+                </article>
+            {% endfor %}
+        </section>
+    {% elif route_searched %}
+        <section class="surface empty-state mt-4">
+            <h2>No direct train found</h2>
+            <p>Try nearby stations or review the alternate suggestions below.</p>
+        </section>
+    {% endif %}
+
+    {% if alternate_results %}
+        <section class="mt-4">
+            <div class="section-title">
+                <h2>Alternate Suggestions</h2>
+            </div>
+            <div class="results-grid">
+                {% for item in alternate_results %}
+                    {% set train = item.train %}
+                    <article class="result-card compact">
+                        <div class="result-main">
+                            <div>
+                                <div class="train-line">
+                                    <span>{{ train.number }}</span>
+                                    <strong>{{ train.name }}</strong>
+                                </div>
+                                <p class="route-line">{{ train.source_station.code }} to {{ train.destination_station.code }}</p>
+                            </div>
+                            <div class="score-block">
+                                <span>{{ item.score }}</span>
+                                <small>AI score</small>
+                            </div>
+                        </div>
+                        <div class="result-footer">
+                            <p>{{ item.reasons|join(", ")|capitalize }}.</p>
+                            <a class="btn btn-outline-primary" href="{{ url_for('main.search', source_id=train.source_station_id, destination_id=train.destination_station_id, travel_date=selected_date, passengers=passenger_count, preference=preference) }}">View route</a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+</section>
+{% endblock %}
+

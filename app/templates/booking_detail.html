@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Booking {{ booking.pnr }}{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Ticket</p>
+            <h1>PNR {{ booking.pnr }}</h1>
+        </div>
+        <div class="header-actions">
+            <a class="btn btn-outline-primary" href="{{ url_for('main.ticket_pdf', booking_id=booking.id) }}">Download PDF</a>
+            {% if booking.status == "CONFIRMED" %}
+                <form method="post" action="{{ url_for('main.cancel_booking', booking_id=booking.id) }}">
+                    <button class="btn btn-outline-danger" type="submit">Cancel</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="layout-grid mt-4">
+        <section class="surface">
+            <h2>{{ booking.train.number }} - {{ booking.train.name }}</h2>
+            <dl class="summary-list">
+                <div><dt>Status</dt><dd><span class="status status-{{ booking.status|lower }}">{{ booking.status }}</span></dd></div>
+                <div><dt>Passenger</dt><dd>{{ booking.user.name }}</dd></div>
+                <div><dt>Route</dt><dd>{{ booking.train.source_station.label() }} to {{ booking.train.destination_station.label() }}</dd></div>
+                <div><dt>Travel date</dt><dd>{{ booking.travel_date.strftime("%d %b %Y") }}</dd></div>
+                <div><dt>Departure</dt><dd>{{ booking.train.departure_time.strftime("%H:%M") }}</dd></div>
+                <div><dt>Total fare</dt><dd>{{ booking.total_fare|currency }}</dd></div>
+            </dl>
+            {% if booking.recommendation_reason %}
+                <p class="ai-note">AI match: {{ booking.recommendation_reason }}.</p>
+            {% endif %}
+        </section>
+
+        <aside class="surface">
+            <h2>Passengers</h2>
+            <div class="stack-list">
+                {% for passenger in booking.passengers %}
+                    <div class="list-row static">
+                        <span>
+                            <strong>{{ passenger.name }}</strong>
+                            <small>{{ passenger.age }} years, {{ passenger.gender }}</small>
+                        </span>
+                        <span class="availability-pill">{{ passenger.seat_number }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </aside>
+    </div>
+
+    <section class="surface mt-4">
+        <h2>Booking Timeline</h2>
+        <div class="timeline">
+            {% for item in booking.history %}
+                <div>
+                    <strong>{{ item.action }}</strong>
+                    <span>{{ item.created_at.strftime("%d %b %Y %H:%M") }}</span>
+                    <p>{{ item.notes }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+{% endblock %}
+

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Admin Bookings{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Admin</p>
+            <h1>Bookings</h1>
+        </div>
+        <div class="header-actions">
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.admin_bookings') }}">All</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.admin_bookings', status='CONFIRMED') }}">Confirmed</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.admin_bookings', status='CANCELED') }}">Canceled</a>
+        </div>
+    </div>
+
+    <section class="surface mt-4">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>PNR</th>
+                        <th>User</th>
+                        <th>Train</th>
+                        <th>Date</th>
+                        <th>Passengers</th>
+                        <th>Fare</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.pnr }}</td>
+                            <td>{{ booking.user.name }}<br><small>{{ booking.user.email }}</small></td>
+                            <td>{{ booking.train.number }} - {{ booking.train.name }}</td>
+                            <td>{{ booking.travel_date.strftime("%d %b %Y") }}</td>
+                            <td>{{ booking.passenger_count }}</td>
+                            <td>{{ booking.total_fare|currency }}</td>
+                            <td><span class="status status-{{ booking.status|lower }}">{{ booking.status }}</span></td>
+                            <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.booking_detail', booking_id=booking.id) }}">Open</a></td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="8" class="text-secondary">No bookings found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+{% endblock %}
+

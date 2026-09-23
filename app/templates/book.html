@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Book {{ train.number }}{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Booking</p>
+            <h1>{{ train.number }} - {{ train.name }}</h1>
+        </div>
+        <div class="header-actions">
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.search', source_id=train.source_station_id, destination_id=train.destination_station_id, travel_date=travel_date.isoformat(), passengers=passenger_count) }}">Back</a>
+        </div>
+    </div>
+
+    <div class="layout-grid mt-4">
+        <section class="surface">
+            <h2>Passenger Details</h2>
+            <form method="post" class="stack-form">
+                <input type="hidden" name="travel_date" value="{{ travel_date.isoformat() }}">
+                <input type="hidden" name="passenger_count" value="{{ passenger_count }}">
+                <input type="hidden" name="recommendation_reason" value="{{ recommendation_reason }}">
+                {% for index in range(passenger_count) %}
+                    <div class="passenger-row">
+                        <div>
+                            <label class="form-label" for="passenger_name_{{ index }}">Passenger {{ index + 1 }}</label>
+                            <input class="form-control" id="passenger_name_{{ index }}" name="passenger_name" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="passenger_age_{{ index }}">Age</label>
+                            <input class="form-control" id="passenger_age_{{ index }}" name="passenger_age" type="number" min="1" max="120" value="18" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="passenger_gender_{{ index }}">Gender</label>
+                            <select class="form-select" id="passenger_gender_{{ index }}" name="passenger_gender">
+                                <option>Female</option>
+                                <option>Male</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                {% endfor %}
+                <button class="btn btn-primary" type="submit">Confirm Booking</button>
+            </form>
+        </section>
+
+        <aside class="surface">
+            <h2>Trip Summary</h2>
+            <dl class="summary-list">
+                <div><dt>Route</dt><dd>{{ train.source_station.code }} to {{ train.destination_station.code }}</dd></div>
+                <div><dt>Date</dt><dd>{{ travel_date.strftime("%d %b %Y") }}</dd></div>
+                <div><dt>Time</dt><dd>{{ train.departure_time.strftime("%H:%M") }} to {{ train.arrival_time.strftime("%H:%M") }}</dd></div>
+                <div><dt>Duration</dt><dd>{{ train.duration_label }}</dd></div>
+                <div><dt>Seats left</dt><dd>{{ train.seats_available }}</dd></div>
+                <div><dt>Total fare</dt><dd>{{ total_fare|currency }}</dd></div>
+            </dl>
+            {% if recommendation_reason %}
+                <p class="ai-note">AI matched this train for {{ recommendation_reason }}.</p>
+            {% endif %}
+        </aside>
+    </div>
+</section>
+{% endblock %}
+

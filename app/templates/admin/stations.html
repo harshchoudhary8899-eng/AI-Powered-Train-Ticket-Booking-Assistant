@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Manage Stations{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Admin</p>
+            <h1>Stations</h1>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
+    </div>
+
+    <div class="layout-grid mt-4">
+        <section class="surface">
+            <h2>Add Station</h2>
+            <form method="post" class="row g-3">
+                <div class="col-sm-4">
+                    <label class="form-label" for="code">Code</label>
+                    <input class="form-control" id="code" name="code" maxlength="12" required>
+                </div>
+                <div class="col-sm-8">
+                    <label class="form-label" for="name">Name</label>
+                    <input class="form-control" id="name" name="name" required>
+                </div>
+                <div class="col-sm-8">
+                    <label class="form-label" for="city">City</label>
+                    <input class="form-control" id="city" name="city" required>
+                </div>
+                <div class="col-sm-4 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" type="submit">Add</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="surface">
+            <h2>Station List</h2>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>City</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for station in stations %}
+                            <tr>
+                                <td>{{ station.code }}</td>
+                                <td>{{ station.name }}</td>
+                                <td>{{ station.city }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}
+

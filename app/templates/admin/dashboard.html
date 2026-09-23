@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Admin</p>
+            <h1>Operations Dashboard</h1>
+        </div>
+        <div class="header-actions">
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.admin_stations') }}">Stations</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.admin_trains') }}">Trains</a>
+            <a class="btn btn-primary" href="{{ url_for('main.admin_bookings') }}">Bookings</a>
+        </div>
+    </div>
+
+    <section class="metric-grid mt-4">
+        <div class="metric-card"><span>Users</span><strong>{{ stats.users }}</strong></div>
+        <div class="metric-card"><span>Trains</span><strong>{{ stats.trains }}</strong></div>
+        <div class="metric-card"><span>Confirmed</span><strong>{{ stats.confirmed }}</strong></div>
+        <div class="metric-card"><span>Canceled</span><strong>{{ stats.canceled }}</strong></div>
+        <div class="metric-card"><span>Revenue</span><strong>{{ stats.revenue|currency }}</strong></div>
+    </section>
+
+    <div class="layout-grid mt-4">
+        <section class="surface">
+            <div class="section-title">
+                <h2>Recent Bookings</h2>
+                <a href="{{ url_for('main.admin_bookings') }}">View all</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>PNR</th>
+                            <th>User</th>
+                            <th>Train</th>
+                            <th>Status</th>
+                            <th>Fare</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                            <tr>
+                                <td>{{ booking.pnr }}</td>
+                                <td>{{ booking.user.name }}</td>
+                                <td>{{ booking.train.number }}</td>
+                                <td><span class="status status-{{ booking.status|lower }}">{{ booking.status }}</span></td>
+                                <td>{{ booking.total_fare|currency }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5" class="text-secondary">No bookings yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="surface">
+            <h2>Low Inventory</h2>
+            <div class="stack-list">
+                {% for train in low_inventory %}
+                    <a class="list-row" href="{{ url_for('main.admin_trains') }}">
+                        <span>
+                            <strong>{{ train.number }}</strong>
+                            <small>{{ train.source_station.code }} to {{ train.destination_station.code }}</small>
+                        </span>
+                        <span class="availability-pill">{{ train.seats_available }}/{{ train.seats_total }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}
+

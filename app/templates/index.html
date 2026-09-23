@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}RailAI Dashboard{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Train ticket workspace</p>
+            <h1>Search, compare, and book trains</h1>
+        </div>
+        <div class="header-actions">
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.pnr_status') }}">Check PNR</a>
+            <a class="btn btn-primary" href="{{ url_for('main.search') }}">Find Trains</a>
+        </div>
+    </div>
+
+    <div class="layout-grid mt-4">
+        <section class="surface search-surface">
+            <h2>Route Search</h2>
+            <form class="row g-3" method="post" action="{{ url_for('main.search') }}">
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label" for="source_id">Source</label>
+                    <select class="form-select" id="source_id" name="source_id" required>
+                        <option value="">Select source</option>
+                        {% for station in stations %}
+                            <option value="{{ station.id }}">{{ station.city }} - {{ station.code }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label class="form-label" for="destination_id">Destination</label>
+                    <select class="form-select" id="destination_id" name="destination_id" required>
+                        <option value="">Select destination</option>
+                        {% for station in stations %}
+                            <option value="{{ station.id }}">{{ station.city }} - {{ station.code }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-6 col-xl-2">
+                    <label class="form-label" for="travel_date">Date</label>
+                    <input class="form-control" id="travel_date" name="travel_date" type="date" min="{{ today_iso }}" value="{{ today_iso }}" required>
+                </div>
+                <div class="col-sm-6 col-xl-2">
+                    <label class="form-label" for="passengers">Passengers</label>
+                    <input class="form-control" id="passengers" name="passengers" type="number" min="1" max="6" value="1" required>
+                </div>
+                <div class="col-xl-2">
+                    <label class="form-label" for="preference">Preference</label>
+                    <select class="form-select" id="preference" name="preference">
+                        <option value="balanced">Balanced</option>
+                        <option value="fastest">Fastest</option>
+                        <option value="cheapest">Cheapest</option>
+                        <option value="availability">Availability</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary" type="submit">Search Trains</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="surface">
+            <h2>Popular Availability</h2>
+            <div class="stack-list">
+                {% for train in popular_trains %}
+                    <a class="list-row" href="{{ url_for('main.search', source_id=train.source_station_id, destination_id=train.destination_station_id, travel_date=today_iso, passengers=1, preference='availability') }}">
+                        <span>
+                            <strong>{{ train.number }}</strong>
+                            <small>{{ train.source_station.code }} to {{ train.destination_station.code }}</small>
+                        </span>
+                        <span class="availability-pill">{{ train.seats_available }}/{{ train.seats_total }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </aside>
+    </div>
+
+    {% if current_user.is_authenticated and recent_bookings %}
+        <section class="surface mt-4">
+            <div class="section-title">
+                <h2>Recent Bookings</h2>
+                <a href="{{ url_for('main.bookings') }}">View all</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>PNR</th>
+                            <th>Train</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                            <tr>
+                                <td>{{ booking.pnr }}</td>
+                                <td>{{ booking.train.number }} - {{ booking.train.name }}</td>
+                                <td>{{ booking.travel_date.strftime("%d %b %Y") }}</td>
+                                <td><span class="status status-{{ booking.status|lower }}">{{ booking.status }}</span></td>
+                                <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.booking_detail', booking_id=booking.id) }}">Open</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% endif %}
+</section>
+{% endblock %}
+

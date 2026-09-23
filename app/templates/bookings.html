@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}My Bookings{% endblock %}
+{% block content %}
+<section class="container-fluid px-3 px-lg-4 py-4">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">History</p>
+            <h1>My Bookings</h1>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('main.search') }}">New Booking</a>
+    </div>
+
+    <section class="surface mt-4">
+        {% if bookings %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>PNR</th>
+                            <th>Train</th>
+                            <th>Travel Date</th>
+                            <th>Passengers</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                            <tr>
+                                <td>{{ booking.pnr }}</td>
+                                <td>{{ booking.train.number }} - {{ booking.train.name }}</td>
+                                <td>{{ booking.travel_date.strftime("%d %b %Y") }}</td>
+                                <td>{{ booking.passenger_count }}</td>
+                                <td>{{ booking.total_fare|currency }}</td>
+                                <td><span class="status status-{{ booking.status|lower }}">{{ booking.status }}</span></td>
+                                <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.booking_detail', booking_id=booking.id) }}">Open</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h2>No bookings yet</h2>
+                <a class="btn btn-primary" href="{{ url_for('main.search') }}">Search Trains</a>
+            </div>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}
+
